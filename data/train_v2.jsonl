@@ -1,0 +1,300 @@
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "SFT在大模型后训练阶段的核心目标是什么？"}, {"role": "assistant", "content": "SFT（Supervised Fine-Tuning）使用高质量的指令-回答或对话数据继续训练预训练模型，核心目标是改善指令遵循、输出格式和特定任务行为，而不是重新学习整个世界知识。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "预训练和SFT最核心的区别是什么？"}, {"role": "assistant", "content": "预训练通常在大规模通用语料上做下一token预测，主要学习语言能力和通用知识；SFT使用带监督的instruction-response数据，主要让模型学会按照人类指令完成任务。"}]}
+{"topic": "post_training", "type": "mechanism", "messages": [{"role": "user", "content": "SFT时模型到底在优化什么？"}, {"role": "assistant", "content": "本质上仍是在最小化token级别的交叉熵损失，只是训练数据被组织成指令与目标回答的形式；模型通过最大化目标回答token的条件概率来学习期望行为。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是assistant_only_loss？"}, {"role": "assistant", "content": "assistant_only_loss表示只对assistant回复部分的token计算监督损失，user/system消息只作为上下文条件，不作为主要预测目标。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么对话SFT常使用assistant_only_loss？"}, {"role": "assistant", "content": "因为我们想训练的是“给定用户输入后如何回答”，而不是让模型学习复述用户提示词。只对assistant部分算loss通常更贴近指令微调目标。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "有人说：assistant_only_loss=True表示只用模型自己生成的数据训练。这个说法对吗？"}, {"role": "assistant", "content": "不对。assistant_only_loss与数据来源无关，它只是规定损失只计算在assistant回复token上；训练数据仍可以来自人工标注、合成数据或其他来源。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "训练集、验证集和测试集分别有什么作用？"}, {"role": "assistant", "content": "训练集用于更新模型参数；验证集用于训练过程中选择超参数、checkpoint和观察过拟合；测试集应尽量在模型确定后用于独立最终评估。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "把测试集问题加入训练集，再继续用原测试集汇报结果，有什么问题？"}, {"role": "assistant", "content": "这会造成数据泄漏。模型可能记住测试问题或答案，使评测结果虚高，无法真实反映模型对未见样本的泛化能力。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是data leakage？"}, {"role": "assistant", "content": "Data leakage指本应只用于验证或测试的信息进入了训练过程，从而让模型提前接触评测信息，导致评测结果失真。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "如果train loss持续下降，但eval loss连续上升，最可能发生了什么？"}, {"role": "assistant", "content": "最可能是过拟合。模型越来越贴合训练样本，但对未见验证数据的泛化能力变差。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“训练loss越低，模型一定越好。”这个说法正确吗？"}, {"role": "assistant", "content": "不正确。训练loss低只能说明模型更好地拟合训练数据；是否真正变好还要看验证/测试表现以及任务指标和bad case。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么小数据集训练很多epoch容易过拟合？"}, {"role": "assistant", "content": "因为模型会反复看到同一批样本，逐渐记住样本细节而不是学习可泛化的模式，导致train loss很低但validation/test表现下降。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "只有8条训练样本却训练10个epoch，出现train loss接近0而eval loss升高，该如何解释？"}, {"role": "assistant", "content": "这是典型的小数据过拟合：模型几乎记住了训练答案，但没有学到足够稳定的泛化模式。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么正式训练不能简单沿用smoke test的最终adapter？"}, {"role": "assistant", "content": "Smoke test通常用极少数据和激进设置验证流程是否通畅，可能已经严重过拟合。正式实验最好从干净Base Model重新训练。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是SFT smoke test？"}, {"role": "assistant", "content": "它是用少量数据和短流程快速检查数据格式、tokenization、模型加载、LoRA注入、loss、反向传播和模型保存是否正常的实验。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "SFT和DPO分别学习什么？"}, {"role": "assistant", "content": "SFT通过示范答案学习“应该怎样回答”；DPO通过chosen/rejected偏好对学习“在多个回答中更应该偏好哪个”。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "SFT和GRPO有什么核心区别？"}, {"role": "assistant", "content": "SFT直接模仿监督数据中的目标答案；GRPO属于强化学习式优化，根据reward对模型采样结果进行更新，更适合通过奖励信号优化推理或策略行为。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "DPO训练数据通常长什么样？"}, {"role": "assistant", "content": "常见形式包含同一个prompt以及一个更优的chosen回答和一个较差的rejected回答，用来学习相对偏好。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "GRPO里的reward有什么作用？"}, {"role": "assistant", "content": "Reward用于评价模型生成结果的质量，优化过程会鼓励产生更高reward的输出，从而把模型策略向目标行为方向推动。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "SFT数据和preference数据有什么区别？"}, {"role": "assistant", "content": "SFT通常给出一个目标示范答案；preference数据则提供多个候选回答及偏好关系，例如chosen与rejected。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么SFT数据质量通常比单纯数量更重要？"}, {"role": "assistant", "content": "错误、重复、模板化或低质量监督会把错误行为教给模型。高质量、正确、多样的数据更容易带来稳定泛化。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "高质量SFT数据通常需要关注哪些方面？"}, {"role": "assistant", "content": "需要关注事实正确性、指令清晰度、覆盖范围、答案完整性、多样性、重复率、格式一致性和难度分布。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么同一个知识点要设计多种问法？"}, {"role": "assistant", "content": "可以减少模型只记住固定模板的风险，帮助它学习知识点本身，并提高对不同用户措辞的泛化能力。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“把同一个问答复制100遍可以等价于100条高质量数据。”正确吗？"}, {"role": "assistant", "content": "不正确。重复样本主要增加记忆和过拟合风险，并没有增加信息覆盖度或语言多样性。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是bad-case data flywheel？"}, {"role": "assistant", "content": "先建立baseline并评测，找出bad case，分析错误类型，再针对薄弱点补充高质量训练数据，重新训练并用固定独立评测集验证，持续循环。"}]}
+{"topic": "post_training", "type": "mechanism", "messages": [{"role": "user", "content": "bad-case飞轮为什么可能提升模型？"}, {"role": "assistant", "content": "因为它把训练数据的增量集中到真实失败模式上，使有限的数据预算优先修补模型的薄弱区域。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“发现一条bad case，就把原测试题原答案加入训练集再测一次。”为什么不推荐？"}, {"role": "assistant", "content": "因为这会直接造成测试泄漏。更合理的是围绕同一知识点构造不同措辞、不同难度的新训练样本，并保留原测试题不变。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "某模型在KV Cache题上经常漏掉“历史K/V重复计算”，你会怎样设计下一轮数据？"}, {"role": "assistant", "content": "围绕该机制构造定义题、为什么题、纠错题、场景题和对比题，反复强调历史token的Key/Value被缓存、避免重复计算这一核心，而不是直接复制测试题。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是domain adaptation式SFT？"}, {"role": "assistant", "content": "指通过特定领域的监督数据，让通用模型更适应某个领域的术语、任务、回答格式和行为需求。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "领域SFT可能带来哪些trade-off？"}, {"role": "assistant", "content": "可能提升特定领域能力，同时改变回答风格或削弱部分通用能力；数据过窄或训练过强时还可能出现能力退化。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是catastrophic forgetting？"}, {"role": "assistant", "content": "模型在学习新任务或新分布时，对原先已经掌握的能力出现明显退化，这类现象通常称为灾难性遗忘。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“SFT后某些指标下降，就一定发生了catastrophic forgetting。”对吗？"}, {"role": "assistant", "content": "不一定。还可能是评测噪声、指标偏差、回答长度变化或数据分布不同。需要更可靠的独立评测确认。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么评测SFT模型时要固定prompt和生成参数？"}, {"role": "assistant", "content": "为了保证不同模型之间比较公平，减少采样随机性、thinking模式或prompt差异造成的干扰。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么正式评测常用do_sample=False？"}, {"role": "assistant", "content": "关闭采样可以让输出更稳定，降低随机性，便于比较Base和不同SFT版本之间的差异。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要保存Base baseline？"}, {"role": "assistant", "content": "没有baseline就无法判断后续SFT究竟带来提升、退化还是只是风格变化。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要保存每轮SFT的独立结果文件？"}, {"role": "assistant", "content": "这样可以做Base、V0、V1、V2等多版本可复现对比，避免覆盖旧结果，也便于bad case追踪。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么验证集不应该在每次发现问题后不断人工修改？"}, {"role": "assistant", "content": "如果不断根据验证结果定向修改验证集或训练数据，验证集会逐渐参与模型选择，失去独立性并导致过拟合到评测流程。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是checkpoint selection？"}, {"role": "assistant", "content": "训练过程中保存多个checkpoint，再根据验证集指标选择表现最佳的一份，而不是默认使用最后一个epoch。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么last checkpoint不一定是best checkpoint？"}, {"role": "assistant", "content": "训练后期可能开始过拟合，train loss继续下降但validation性能反而变差，因此最后一轮未必最好。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "Epoch1 eval_loss=2.8，Epoch2=2.6，Epoch3=2.9，应该优先选择哪一轮？"}, {"role": "assistant", "content": "如果以eval_loss为主要指标，应优先选择Epoch2，因为它的验证损失最低。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "load_best_model_at_end=True的作用是什么？"}, {"role": "assistant", "content": "训练结束后自动恢复验证指标最好的checkpoint，避免最终模型停留在可能已经过拟合的最后一个epoch。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么SFT评测不能只看eval_loss？"}, {"role": "assistant", "content": "eval_loss是token级训练目标的代理指标，不一定直接等价于最终任务效果，还需要任务准确率、格式指标、人工质量评估和bad case分析。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是LLM-as-a-Judge？"}, {"role": "assistant", "content": "使用另一个语言模型按照固定rubric对候选回答进行正确性、完整性、风格或偏好评分，是自动化评测的一种方式。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "LLM-as-a-Judge有哪些风险？"}, {"role": "assistant", "content": "Judge模型可能有偏见、位置偏差、长度偏好或事实错误，因此最好结合人工复核和可解释的规则指标。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "关键词覆盖率和准确率有什么区别？"}, {"role": "assistant", "content": "关键词覆盖率只检查是否出现某些概念词，不能保证语义正确；准确率关注答案是否真正正确，因此关键词分高不一定表示答案正确。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“答案越长，模型就越懂。”这个说法对吗？"}, {"role": "assistant", "content": "不对。长回答可能包含更多关键词，也可能包含更多错误或幻觉；回答质量应看正确性和任务完成度。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "SFT里的learning rate控制什么？"}, {"role": "assistant", "content": "学习率控制每次参数更新的步长。过大可能训练不稳定或破坏已有能力，过小则可能学习不足。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "LoRA SFT中学习率过大可能出现什么现象？"}, {"role": "assistant", "content": "可能出现loss剧烈波动、梯度不稳定、模型行为快速偏移或对原有能力造成较大破坏。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "学习率过小有什么风险？"}, {"role": "assistant", "content": "模型参数更新幅度过小，在有限训练步数内可能学不到足够的任务特征，表现为欠拟合。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "gradient accumulation解决什么问题？"}, {"role": "assistant", "content": "它通过多次micro-batch前向/反向累积梯度后再做一次optimizer step，在显存有限时模拟更大的有效batch size。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "batch_size=2，gradient_accumulation_steps=4，单卡时有效batch size大约是多少？"}, {"role": "assistant", "content": "如果只有一张GPU且不考虑其他并行因素，有效batch size约为2×4=8。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么梯度累积不会显著增加单步显存到完整大batch的水平？"}, {"role": "assistant", "content": "因为每次只处理micro-batch，累积的是梯度而不是同时保留整个大batch的激活。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是gradient checkpointing？"}, {"role": "assistant", "content": "训练时不保存部分中间激活，在反向传播时重新计算，以额外计算换取显存节省。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "gradient checkpointing和gradient accumulation有什么区别？"}, {"role": "assistant", "content": "前者主要减少激活显存、以重计算换显存；后者主要用于模拟更大的有效batch size。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么LoRA属于PEFT？"}, {"role": "assistant", "content": "因为它冻结大部分原模型参数，只训练少量新增低秩参数，以较小训练成本完成任务适配。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "PEFT的全称是什么？"}, {"role": "assistant", "content": "PEFT是Parameter-Efficient Fine-Tuning，即参数高效微调。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "QLoRA比LoRA额外做了什么？"}, {"role": "assistant", "content": "QLoRA在LoRA基础上进一步把冻结的基座模型以低比特量化形式加载，从而进一步降低显存占用。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "全参数微调和LoRA的优化器状态开销有什么区别？"}, {"role": "assistant", "content": "全参数微调需要为大量模型参数维护梯度和优化器状态；LoRA通常只为少量Adapter参数维护这些训练状态，因此显存低很多。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么SFT训练仍需要Base Model前向？"}, {"role": "assistant", "content": "即使只训练LoRA，模型输出仍由Base Model与LoRA更新共同计算，因此完整基座模型仍参与前向传播。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "如果训练数据里存在大量事实错误，会发生什么？"}, {"role": "assistant", "content": "模型可能把错误监督学进去，导致领域能力下降或产生新的幻觉，因此数据清洗和事实校验非常重要。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "数据去重为什么重要？"}, {"role": "assistant", "content": "重复数据会降低有效信息密度，放大某些模式的权重，并增加记忆与过拟合风险。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是train/eval distribution mismatch？"}, {"role": "assistant", "content": "训练集和评测集的主题、风格、难度或数据来源差异过大，使评测结果不能合理反映训练目标或实际使用场景。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么评测题既要同分布也要包含一定难度变化？"}, {"role": "assistant", "content": "同分布保证评测与目标能力相关，适度难度变化则能检测模型是否真正理解概念而不是只记住模板。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么固定随机种子有帮助？"}, {"role": "assistant", "content": "固定seed可以让数据切分和部分训练过程更可复现，减少重复实验时由随机性造成的差异。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "固定随机种子能保证完全一致的训练结果吗？"}, {"role": "assistant", "content": "不一定。GPU算子、库版本和并行实现仍可能引入非确定性，但固定seed可以显著提高可复现性。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要记录GPU型号和峰值显存？"}, {"role": "assistant", "content": "这是实验可复现和工程评估的重要信息，可以说明训练资源成本以及方案是否适合目标硬件。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要记录trainable params比例？"}, {"role": "assistant", "content": "它能直接证明PEFT只训练了模型中的一小部分参数，也便于比较不同LoRA配置的成本。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "如果V1总体准确率低于Base，但KV Cache明显提升，该如何解读？"}, {"role": "assistant", "content": "说明领域SFT可能对某些目标能力有效，但也伴随其他能力退化或评测trade-off，需要继续分析数据配比和训练强度，而不能只看总体分数。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是能力trade-off？"}, {"role": "assistant", "content": "模型在某些能力变强的同时，其他能力下降或回答行为发生不利变化，这种取舍称为能力trade-off。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么V2阶段最好一次只主要改变数据，而保持LoRA超参数不变？"}, {"role": "assistant", "content": "这样更容易把V1到V2的变化归因于数据设计，而不是多个变量同时变化导致无法判断原因。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是ablation study？"}, {"role": "assistant", "content": "消融实验通过有控制地移除或改变某个组件、数据类型或超参数，观察性能变化，从而判断该因素的实际贡献。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "想验证纠错型数据是否有效，应该怎样做一个简单消融实验？"}, {"role": "assistant", "content": "保持模型和训练设置一致，一组数据包含纠错样本，另一组去掉纠错样本，再在同一独立评测集上比较错误率。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么项目里要保留V0而不是直接删除？"}, {"role": "assistant", "content": "V0是重要对照实验，记录了小数据过拟合和初始pipeline效果，可以帮助说明后续V1/V2改进来自哪里。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "如果模型只会回答训练集中非常接近的问法，换一种措辞就失败，这说明什么？"}, {"role": "assistant", "content": "说明模型可能主要记住模板，泛化不足，需要增加同义问法、场景题和机制题，提高数据多样性。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是instruction-following能力？"}, {"role": "assistant", "content": "模型理解用户要求并按照指定任务、格式、约束和目标生成合适输出的能力。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "用户要求“只输出JSON”，模型却输出解释文字，这属于哪类SFT问题？"}, {"role": "assistant", "content": "这是指令遵循或格式遵循问题，可以通过高质量格式约束数据和相应评测来改进。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么格式任务也适合用SFT？"}, {"role": "assistant", "content": "因为格式要求可以通过大量明确示范直接监督模型学习，例如固定JSON schema、分类标签或结构化模板。"}]}
+{"topic": "post_training", "type": "comparison", "messages": [{"role": "user", "content": "知识SFT和格式SFT有什么区别？"}, {"role": "assistant", "content": "知识SFT重点让模型在特定领域回答更准确；格式SFT重点训练模型遵守输出结构和任务约束。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "如果SFT数据答案都非常短，会有什么潜在影响？"}, {"role": "assistant", "content": "模型可能学到过度简短的回答风格，导致完整性下降；这不一定是知识退化，但会影响基于关键词覆盖或完整性的评测。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "如果SFT数据答案都非常长，会有什么潜在影响？"}, {"role": "assistant", "content": "模型可能倾向冗长输出，增加推理成本和幻觉机会，因此数据应覆盖合适的回答长度分布。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么回答风格变化会干扰自动评测？"}, {"role": "assistant", "content": "某些指标对长度、关键词数量或格式敏感，模型风格变化可能让分数改变，即使真实正确性变化不大。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "什么是reference answer？"}, {"role": "assistant", "content": "Reference answer是评测时用于对照的参考正确答案，用来定义应包含的核心事实或推理要点。"}]}
+{"topic": "post_training", "type": "risk", "messages": [{"role": "user", "content": "reference answer可以当成唯一正确表述吗？"}, {"role": "assistant", "content": "通常不可以。自然语言问题可能有多种等价正确表达，因此评测应关注事实和关键概念，而不是逐字匹配。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要同时做定量和定性评测？"}, {"role": "assistant", "content": "定量指标便于比较版本，定性bad case能解释模型为什么失败；二者结合才能指导下一轮数据和训练。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "某模型overall分数提升，但关键安全或事实题变差，是否能直接认为新模型更好？"}, {"role": "assistant", "content": "不能。总体平均分可能掩盖关键能力退化，需要按领域和重要性拆分指标并检查严重bad case。"}]}
+{"topic": "post_training", "type": "definition", "messages": [{"role": "user", "content": "为什么要按topic统计评测分数？"}, {"role": "assistant", "content": "按主题拆分可以定位模型具体在哪些能力上提升或退化，比单一overall更有诊断价值。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "Post-training得分下降而KV Cache上升，下一轮数据应该怎样调整？"}, {"role": "assistant", "content": "应提高Post-training相关数据占比并分析其错误类型，同时保留足量KV Cache数据防止已改善能力回退，而不是五类继续平均增加。"}]}
+{"topic": "post_training", "type": "scenario", "messages": [{"role": "user", "content": "某次训练第2轮验证集最好，第3轮更差，模型应该保存哪一轮？"}, {"role": "assistant", "content": "应优先保存验证指标最好的第2轮，而不是机械使用最后一轮。"}]}
+{"topic": "post_training", "type": "correction", "messages": [{"role": "user", "content": "“测试集可以参与超参数选择，只要最后不反向传播就行。”正确吗？"}, {"role": "assistant", "content": "不正确。测试集应尽量保留到最终评估阶段；如果频繁用它选超参数，就会对测试集过拟合。"}]}
+{"topic": "post_training", "type": "why", "messages": [{"role": "user", "content": "为什么bad case分析要记录错误类型？"}, {"role": "assistant", "content": "分类成事实错误、机制缺失、格式错误、幻觉等后，才能针对不同失败模式设计更合适的数据或训练策略。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Self-Attention中Q、K、V分别是什么？"}, {"role": "assistant", "content": "Q是Query，表示当前位置想查询什么；K是Key，用来与Q计算匹配程度；V是Value，承载最终被聚合的信息。"}]}
+{"topic": "attention", "type": "formula", "messages": [{"role": "user", "content": "Scaled Dot-Product Attention的公式是什么？"}, {"role": "assistant", "content": "Attention(Q,K,V)=softmax(QK^T/√d_k)V。"}]}
+{"topic": "attention", "type": "mechanism", "messages": [{"role": "user", "content": "Scaled Dot-Product Attention从输入到输出的步骤是什么？"}, {"role": "assistant", "content": "先用Q和K计算QK^T相似度，再除以√d_k做缩放，经过softmax得到注意力权重，最后用权重对V加权求和。"}]}
+{"topic": "attention", "type": "why", "messages": [{"role": "user", "content": "为什么Attention里要除以√d_k？"}, {"role": "assistant", "content": "维度较大时Q和K的点积幅度会变大，使softmax容易饱和；除以√d_k可以稳定数值尺度和梯度。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Self-Attention就是把Q、K、V直接相加。”正确吗？"}, {"role": "assistant", "content": "不正确。核心过程是用Q和K计算注意力分数，softmax归一化后再对V加权求和。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“V用来和Q做相似度匹配。”正确吗？"}, {"role": "assistant", "content": "通常不正确。匹配主要由Q和K完成，V负责提供最终被聚合的内容。"}]}
+{"topic": "attention", "type": "mechanism", "messages": [{"role": "user", "content": "一个token怎样从其他token获取信息？"}, {"role": "assistant", "content": "该token的Query与所有位置的Key计算相关性，得到注意力权重后，对所有位置的Value进行加权求和，从而融入上下文信息。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Attention权重是怎样得到的？"}, {"role": "assistant", "content": "通常由QK^T/√d_k得到分数，再对分数做softmax得到归一化注意力权重。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "softmax在Attention中起什么作用？"}, {"role": "assistant", "content": "它把注意力分数转换成归一化权重，使模型能按不同程度聚合各位置的Value。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "如果某个Key与当前Query非常匹配，通常会发生什么？"}, {"role": "assistant", "content": "它对应的注意力分数通常更高，softmax后得到更大的权重，从而让对应Value对输出贡献更大。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Attention权重最高的token一定就是模型最终最重要的token。”正确吗？"}, {"role": "assistant", "content": "不一定。注意力权重只反映特定层和特定头中的信息聚合关系，不能简单等价为最终决策的重要性。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Q、K、V通常怎样从隐藏状态得到？"}, {"role": "assistant", "content": "通常通过三组可学习线性投影从输入隐藏状态生成，例如Q=XW_Q、K=XW_K、V=XW_V。"}]}
+{"topic": "attention", "type": "formula", "messages": [{"role": "user", "content": "写出Q、K、V的常见线性投影形式。"}, {"role": "assistant", "content": "常见形式是Q=XW_Q，K=XW_K，V=XW_V，其中W_Q、W_K、W_V是可学习参数。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Multi-Head Attention是什么？"}, {"role": "assistant", "content": "把隐藏维度分成多个头，每个头独立计算Attention，然后拼接各头结果并做输出投影。"}]}
+{"topic": "attention", "type": "why", "messages": [{"role": "user", "content": "为什么使用多个Attention头？"}, {"role": "assistant", "content": "不同头可以在不同表示子空间学习不同关系，例如局部依赖、语法关系或语义关联，提高表达能力。"}]}
+{"topic": "attention", "type": "mechanism", "messages": [{"role": "user", "content": "Multi-Head Attention最后怎样合并多个头？"}, {"role": "assistant", "content": "每个头先独立得到输出，然后沿特征维拼接，再通过输出线性层进行融合。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "head_dim通常与embed_dim和num_heads有什么关系？"}, {"role": "assistant", "content": "常见情况下head_dim=embed_dim/num_heads，因此embed_dim通常需要能被num_heads整除。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Causal Mask是什么？"}, {"role": "assistant", "content": "一种阻止当前位置看到未来token的mask，保证自回归语言模型预测时只使用当前及历史上下文。"}]}
+{"topic": "attention", "type": "why", "messages": [{"role": "user", "content": "为什么GPT类模型需要Causal Mask？"}, {"role": "assistant", "content": "因为训练和生成都要求不能提前看到未来token，否则会发生信息泄漏，破坏自回归目标。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Causal Mask是为了屏蔽padding token。”正确吗？"}, {"role": "assistant", "content": "不正确。Causal Mask主要屏蔽未来位置；Padding Mask才用于忽略补齐出来的无效token。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "Padding Mask和Causal Mask有什么区别？"}, {"role": "assistant", "content": "Padding Mask屏蔽无效padding位置；Causal Mask屏蔽未来位置。两者可以同时存在。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Self-Attention和Cross-Attention最大的区别是什么？"}, {"role": "assistant", "content": "Self-Attention中Q/K/V来自同一序列；Cross-Attention中通常Q来自一个序列，而K/V来自另一个序列。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "Transformer decoder关注encoder输出时通常使用哪种Attention？"}, {"role": "assistant", "content": "通常使用Cross-Attention：decoder状态产生Query，encoder输出提供Key和Value。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "标准Self-Attention为什么有O(n²)项？"}, {"role": "assistant", "content": "因为长度为n的所有Query需要与n个Key两两计算注意力分数，形成n×n矩阵。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "序列长度从n变成2n，标准attention score矩阵元素数量大约变成多少？"}, {"role": "assistant", "content": "从n²变成(2n)²=4n²，也就是约4倍。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Position Encoding为什么重要？"}, {"role": "assistant", "content": "标准Self-Attention本身缺少顺序感，需要位置机制告诉模型token在序列中的位置信息。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "绝对位置编码和RoPE直观上有什么区别？"}, {"role": "assistant", "content": "绝对位置编码通常直接加入位置表示；RoPE通过对Q和K施加位置相关旋转，让位置信息进入注意力关系。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "RoPE主要作用在哪些向量上？"}, {"role": "assistant", "content": "通常作用在Attention中的Query和Key上，通过位置相关旋转改变它们的几何关系。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“RoPE主要旋转Value向量。”正确吗？"}, {"role": "assistant", "content": "通常不正确。RoPE的核心是对Query和Key进行旋转位置编码。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Residual Connection在Transformer中有什么作用？"}, {"role": "assistant", "content": "让子层学习对输入的增量更新，同时提供更直接的梯度传播路径，有助于深层网络训练。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "LayerNorm在Transformer中有什么作用？"}, {"role": "assistant", "content": "对每个token的隐藏特征做归一化，帮助稳定激活和梯度尺度，提高训练稳定性。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "Pre-Norm和Post-Norm的区别是什么？"}, {"role": "assistant", "content": "Pre-Norm在子层前做LayerNorm，Post-Norm在残差相加后做LayerNorm；深层Transformer中Pre-Norm通常更容易稳定训练。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "FFN在Transformer block里做什么？"}, {"role": "assistant", "content": "它对每个token位置独立地进行非线性特征变换，通常由两层或门控线性层组成，与Attention共同构成Transformer block。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "Attention和FFN分别擅长什么？"}, {"role": "assistant", "content": "Attention主要在token之间交换和聚合信息；FFN主要在每个token内部做特征变换。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Self-Attention容易并行训练？"}, {"role": "assistant", "content": "训练时序列中各位置的Q/K/V和注意力可以同时计算，不需要像RNN那样按时间步递归。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "Transformer与RNN在长距离依赖上的主要差异是什么？"}, {"role": "assistant", "content": "Self-Attention可以让任意两个位置直接交互，而RNN信息通常需要经过多个时间步传递。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Attention输出为什么通常不是复制某一个Value？"}, {"role": "assistant", "content": "因为输出通常是多个Value按照注意力权重的加权和，会融合多个位置的信息。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "如果softmax后某个位置权重接近1，其他位置接近0，输出会怎样？"}, {"role": "assistant", "content": "输出会主要由该位置对应的Value决定，其他位置贡献很小。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Q和K的维度需要匹配？"}, {"role": "assistant", "content": "因为要计算QK^T点积，Q和K在用于点积的特征维上必须兼容。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Value维度必须和Key维度完全相同吗？"}, {"role": "assistant", "content": "不一定。点积要求Q和K维度匹配，而Value的特征维可以不同，只要后续投影和拼接设计兼容。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Self-Attention只能关注相邻token。”正确吗？"}, {"role": "assistant", "content": "不正确。标准Self-Attention可以直接关注序列中的任意位置，因此能建模长距离依赖。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Attention score和Attention weight有什么区别？"}, {"role": "assistant", "content": "score通常指softmax前的匹配分数，例如QK^T/√d_k；weight是softmax后的归一化权重。"}]}
+{"topic": "attention", "type": "formula", "messages": [{"role": "user", "content": "为什么QK^T会得到一个位置对位置的矩阵？"}, {"role": "assistant", "content": "Q包含每个位置的查询向量，K包含每个位置的键向量，QK^T会计算所有Query与所有Key的两两点积。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "一句话有10个token，单头Self-Attention的score矩阵大致是什么形状？"}, {"role": "assistant", "content": "如果忽略batch和head维度，score矩阵形状是10×10。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Mask通常在softmax之前还是之后应用？"}, {"role": "assistant", "content": "通常在softmax之前把需要屏蔽的位置加上很大的负值，使softmax后这些位置权重接近0。"}]}
+{"topic": "attention", "type": "why", "messages": [{"role": "user", "content": "为什么mask位置常加负无穷或很大的负数？"}, {"role": "assistant", "content": "因为经过softmax后这些位置的概率会接近0，从而实现屏蔽效果。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“把mask位置直接设成0再softmax就一定能完全屏蔽。”正确吗？"}, {"role": "assistant", "content": "不正确。0仍可能在softmax后得到非零权重，因此通常要把对应score设为负无穷或极小值。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "Attention中的temperature和√d_k缩放是一回事吗？"}, {"role": "assistant", "content": "概念上都影响softmax前分数尺度，但标准Scaled Dot-Product Attention固定使用√d_k缩放，并不等同于任意可调temperature。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "什么是attention entropy？"}, {"role": "assistant", "content": "它衡量注意力权重分布的分散程度；熵低表示更集中，熵高表示分布更平均。"}]}
+{"topic": "attention", "type": "risk", "messages": [{"role": "user", "content": "Attention权重过度集中可能意味着什么？"}, {"role": "assistant", "content": "可能意味着模型几乎只依赖少数位置；这不一定错误，但在某些情况下可能导致信息利用不足或不稳定。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Multi-Head Attention最后还需要输出投影W_O？"}, {"role": "assistant", "content": "各头结果拼接后需要重新映射回模型隐藏维度，并允许模型学习如何融合不同头的信息。"}]}
+{"topic": "attention", "type": "formula", "messages": [{"role": "user", "content": "多头Attention常见写法是什么？"}, {"role": "assistant", "content": "MultiHead(Q,K,V)=Concat(head_1,...,head_h)W_O，其中每个head_i独立计算Scaled Dot-Product Attention。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "如果num_heads增加但embed_dim固定，head_dim通常怎样变化？"}, {"role": "assistant", "content": "head_dim通常会变小，因为常见情况下head_dim=embed_dim/num_heads。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Transformer需要非线性激活函数？"}, {"role": "assistant", "content": "如果所有层都只是线性变换，整体表达能力受限；FFN中的GELU、SiLU等非线性增加模型的函数表达能力。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "什么是GQA？"}, {"role": "assistant", "content": "Grouped-Query Attention让多个Query头共享较少数量的Key/Value头，用于降低KV Cache和推理开销。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "MHA、GQA、MQA的KV头数量有什么区别？"}, {"role": "assistant", "content": "MHA通常每个Query头都有对应KV头；GQA让一组Query头共享KV头；MQA通常所有Query头共享极少甚至单个KV头。"}]}
+{"topic": "attention", "type": "why", "messages": [{"role": "user", "content": "GQA为什么适合大模型推理？"}, {"role": "assistant", "content": "它减少需要缓存和计算的Key/Value头数量，在保留多个Query头表达能力的同时降低KV Cache显存和带宽开销。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "FlashAttention主要优化什么？"}, {"role": "assistant", "content": "它通过分块和更高效的内存访问减少HBM读写，降低Attention的内存开销并提升执行效率，而不是改变Attention数学定义。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“FlashAttention改变了softmax Attention的最终数学结果。”正确吗？"}, {"role": "assistant", "content": "在标准正确实现和数值误差范围内不应改变理论结果，它主要改变计算顺序和内存访问方式。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "FlashAttention和KV Cache解决的问题相同吗？"}, {"role": "assistant", "content": "不相同。FlashAttention优化Attention计算与内存访问；KV Cache避免自回归decode时重复计算历史K/V。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "训练长序列时更关注FlashAttention还是KV Cache？"}, {"role": "assistant", "content": "训练整段序列时FlashAttention通常更关键；KV Cache主要用于自回归推理的decode阶段。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Decoder-only LLM训练可以并行处理所有token？"}, {"role": "assistant", "content": "虽然有Causal Mask限制未来信息，但训练时目标序列已知，可以一次计算所有位置的masked Attention和loss。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "训练时并行和推理时逐token生成为什么不同？"}, {"role": "assistant", "content": "训练时整段目标序列已知，可同时计算各位置；推理时下一个token未知，必须生成后才能继续下一步。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Attention适合融合上下文？"}, {"role": "assistant", "content": "它允许每个位置根据当前Query动态选择其他位置的信息，并按相关性加权聚合。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "代词“它”要关联前文名词时，Self-Attention能做什么？"}, {"role": "assistant", "content": "“它”的Query可以对前文相关名词的Key产生较高权重，从相应Value中聚合指代相关信息。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么Attention不是固定卷积核？"}, {"role": "assistant", "content": "注意力权重由当前输入的Q和K动态计算，因此不同输入会产生不同的信息聚合模式。"}]}
+{"topic": "attention", "type": "comparison", "messages": [{"role": "user", "content": "Attention和卷积在感受野上有什么直观区别？"}, {"role": "assistant", "content": "标准Self-Attention单层即可直接连接所有位置；普通局部卷积需要堆叠多层才能扩大感受野。"}]}
+{"topic": "attention", "type": "risk", "messages": [{"role": "user", "content": "长序列标准Attention的主要瓶颈是什么？"}, {"role": "assistant", "content": "n×n注意力矩阵带来较高计算和显存开销，序列长度增大时成本快速上升。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么线性Attention类方法被提出？"}, {"role": "assistant", "content": "主要是为了降低标准Attention随序列长度平方增长的计算或内存成本。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Self-Attention没有任何顺序信息，所以Transformer永远无法理解顺序。”正确吗？"}, {"role": "assistant", "content": "不正确。Attention本身缺少顺序偏置，但Transformer会通过位置编码、RoPE等机制加入位置信息。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "如果完全移除位置编码，模型可能遇到什么问题？"}, {"role": "assistant", "content": "模型难以区分相同token集合的不同顺序，因为标准Attention本身对排列缺少足够的顺序感知。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么RoPE特别影响QK^T？"}, {"role": "assistant", "content": "因为RoPE直接旋转Q和K，改变它们随相对位置变化的点积关系，从而把位置信息带入Attention score。"}]}
+{"topic": "attention", "type": "formula", "messages": [{"role": "user", "content": "softmax(QK^T/√d_k)V中的V为什么放在softmax之后相乘？"}, {"role": "assistant", "content": "softmax先根据Q和K得到对各位置的权重，再用这些权重对V携带的内容进行加权汇总。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Q、K、V分别等于一个词本身、另一个词、第三个词。”正确吗？"}, {"role": "assistant", "content": "不正确。每个token通常都会同时产生自己的Q、K、V向量，它们不是分别对应三个不同词。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "句子有N个token，每个token会有几个Q/K/V向量？"}, {"role": "assistant", "content": "在单头视角下，每个token通常都会产生一个Q、一个K和一个V；多头情况下每个头都有对应的投影表示。"}]}
+{"topic": "attention", "type": "mechanism", "messages": [{"role": "user", "content": "为什么Value包含的是“被取出的内容”而不是“检索索引”？"}, {"role": "assistant", "content": "检索匹配由Query和Key完成，Value负责承载匹配后真正汇总到输出中的信息，因此可以把K理解为索引特征、V理解为内容特征。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "若两个Key与Query的相似度完全相同，softmax后它们的权重一定相同吗？"}, {"role": "assistant", "content": "如果没有额外mask或偏置，且对应score完全相同，那么softmax后这两个位置的权重相同。"}]}
+{"topic": "attention", "type": "correction", "messages": [{"role": "user", "content": "“Attention输出就是softmax分数本身。”正确吗？"}, {"role": "assistant", "content": "不正确。softmax得到的是权重，真正的Attention输出还要用这些权重对Value做加权求和。"}]}
+{"topic": "attention", "type": "definition", "messages": [{"role": "user", "content": "为什么K和V常来自同一组token但作用不同？"}, {"role": "assistant", "content": "它们通常由同一输入序列通过不同线性投影得到；K负责匹配，V负责承载被聚合内容。"}]}
+{"topic": "attention", "type": "scenario", "messages": [{"role": "user", "content": "Cross-Attention里decoder Query关注encoder Key/Value，说明了什么？"}, {"role": "assistant", "content": "说明decoder当前状态可以主动从encoder表示中检索与当前生成最相关的信息。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA的全称是什么？"}, {"role": "assistant", "content": "LoRA是Low-Rank Adaptation，一种参数高效微调方法。"}]}
+{"topic": "lora", "type": "mechanism", "messages": [{"role": "user", "content": "LoRA的核心思想是什么？"}, {"role": "assistant", "content": "冻结原模型权重，用两个低秩可训练矩阵表示权重更新ΔW，从而只训练少量参数完成任务适配。"}]}
+{"topic": "lora", "type": "formula", "messages": [{"role": "user", "content": "LoRA的权重更新常写成什么形式？"}, {"role": "assistant", "content": "常写成W'=W+s·BA，其中W冻结，A和B是低秩可训练矩阵，s是缩放因子。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA中的rank r代表什么？"}, {"role": "assistant", "content": "它是低秩分解中间维度，决定LoRA更新的容量，也直接影响可训练参数量。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "rank从8增大到32，LoRA参数量通常怎样变化？"}, {"role": "assistant", "content": "通常近似按rank线性增加，因此可训练参数量大约会增加到原来的4倍左右，具体取决于目标层维度。"}]}
+{"topic": "lora", "type": "correction", "messages": [{"role": "user", "content": "“rank越大，LoRA参数越少。”正确吗？"}, {"role": "assistant", "content": "不正确。LoRA参数量通常与rank近似线性增长。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "rank增大可能带来什么好处？"}, {"role": "assistant", "content": "更大的rank提供更高的低秩更新容量，有机会表示更复杂的任务变化。"}]}
+{"topic": "lora", "type": "risk", "messages": [{"role": "user", "content": "rank增大可能带来什么代价？"}, {"role": "assistant", "content": "可训练参数、显存和计算开销增加，小数据场景下也可能更容易过拟合。"}]}
+{"topic": "lora", "type": "risk", "messages": [{"role": "user", "content": "rank太小会怎样？"}, {"role": "assistant", "content": "低秩更新容量可能不足，无法表达任务所需的复杂变化，表现为欠拟合。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "lora_alpha是什么？"}, {"role": "assistant", "content": "lora_alpha控制LoRA分支的缩放强度，经典实现中常通过alpha/r形成缩放因子。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "r=16、alpha=32时经典LoRA缩放因子大约是多少？"}, {"role": "assistant", "content": "按常见alpha/r缩放，约为32/16=2。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "lora_dropout有什么作用？"}, {"role": "assistant", "content": "它对LoRA适配分支进行正则化，帮助降低过拟合风险。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "target_modules是什么？"}, {"role": "assistant", "content": "它指定在哪些模型模块中插入LoRA，例如q_proj、k_proj、v_proj、o_proj等线性层。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么target_modules会影响LoRA参数量？"}, {"role": "assistant", "content": "插入LoRA的层越多，需要训练的低秩矩阵越多，因此总可训练参数通常增加。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "target_modules='all-linear'意味着什么？"}, {"role": "assistant", "content": "表示尽可能对模型中的线性层应用LoRA，而不是只选少数Attention投影层。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "为什么LoRA是PEFT方法？"}, {"role": "assistant", "content": "因为它只训练少量新增Adapter参数，而冻结大部分基座模型参数。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA训练时Base Model参数会更新吗？"}, {"role": "assistant", "content": "正常配置下不会，基座参数被冻结，主要更新LoRA参数。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "LoRA为什么省优化器显存？"}, {"role": "assistant", "content": "优化器只需要为少量LoRA可训练参数维护状态，而不是为整个模型参数维护。"}]}
+{"topic": "lora", "type": "correction", "messages": [{"role": "user", "content": "“LoRA省显存是因为Base Model不用加载。”正确吗？"}, {"role": "assistant", "content": "不正确。Base Model仍需参与前向并占用权重显存；主要节省的是可训练参数相关的梯度和优化器状态。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "QLoRA是什么？"}, {"role": "assistant", "content": "QLoRA是在LoRA基础上，把冻结的Base Model用低比特量化方式加载，以进一步降低显存。"}]}
+{"topic": "lora", "type": "comparison", "messages": [{"role": "user", "content": "LoRA和QLoRA的核心差别是什么？"}, {"role": "assistant", "content": "两者都训练低秩Adapter；QLoRA额外量化冻结的基座权重，因此更省显存。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA Adapter通常保存什么？"}, {"role": "assistant", "content": "保存低秩矩阵参数、相关配置以及必要的适配信息，而不是完整基座模型权重。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么LoRA模型文件通常比Base Model小很多？"}, {"role": "assistant", "content": "因为Adapter只包含少量新增可训练参数，绝大多数基座权重没有重复保存。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA Adapter加载流程是什么？"}, {"role": "assistant", "content": "先加载与训练时相同的Base Model，再把对应LoRA Adapter挂载到模型上。"}]}
+{"topic": "lora", "type": "risk", "messages": [{"role": "user", "content": "如果Adapter和错误版本的Base Model搭配会怎样？"}, {"role": "assistant", "content": "可能出现维度不匹配、加载失败或行为异常，因此应记录准确的基座模型版本。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "merge LoRA是什么意思？"}, {"role": "assistant", "content": "把LoRA学习到的低秩更新合并进基座权重，得到一个不再依赖独立Adapter的模型。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么部署时有时会merge LoRA？"}, {"role": "assistant", "content": "可以简化加载流程，并避免推理时额外维护Adapter分支；但会失去轻量切换多个Adapter的便利。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA训练完成后如何证明它真的学到了？"}, {"role": "assistant", "content": "可检查trainable params、训练loss、Adapter参数变化，并在独立评测集上比较Base与LoRA模型表现。"}]}
+{"topic": "lora", "type": "risk", "messages": [{"role": "user", "content": "为什么小数据LoRA也会严重过拟合？"}, {"role": "assistant", "content": "虽然参数量比全参数微调少，但仍足以记住很小的数据集，尤其当epoch过多时。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "8条训练样本、10个epoch、train loss接近0但eval loss上升，说明什么？"}, {"role": "assistant", "content": "说明LoRA已经强烈拟合训练样本但泛化变差，是典型过拟合。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "trainable params percentage是什么意思？"}, {"role": "assistant", "content": "可训练参数占模型总参数的比例，用于衡量PEFT实际只更新了多少参数。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "LoRA可训练参数只有总参数的1.7%左右，说明什么？"}, {"role": "assistant", "content": "说明大部分基座参数被冻结，只有少量Adapter参数参与训练，符合参数高效微调特征。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA中的A和B通常初始化成什么思路？"}, {"role": "assistant", "content": "常见做法是让初始低秩更新接近0，使模型一开始行为接近原始Base Model，然后逐步学习任务特定更新。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么LoRA不会一开始就大幅破坏Base Model行为？"}, {"role": "assistant", "content": "因为低秩分支通常以接近零更新开始，并且基座权重被冻结，训练会逐步改变Adapter贡献。"}]}
+{"topic": "lora", "type": "comparison", "messages": [{"role": "user", "content": "LoRA和Adapter Tuning有什么共同点？"}, {"role": "assistant", "content": "都属于PEFT，通过新增少量可训练参数适配任务，同时冻结大部分预训练参数。"}]}
+{"topic": "lora", "type": "comparison", "messages": [{"role": "user", "content": "LoRA和Prefix Tuning有什么差别？"}, {"role": "assistant", "content": "LoRA修改线性层权重更新路径；Prefix Tuning通常学习可训练前缀向量影响模型各层注意力。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "为什么LoRA常应用于Attention投影层？"}, {"role": "assistant", "content": "这些线性层对模型信息路由和表示变换影响较大，用较少参数即可有效调整模型行为。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "显存紧张时，应该无脑把rank调到1吗？"}, {"role": "assistant", "content": "不应该。rank太小可能导致适配容量不足，需要在显存预算和任务性能之间权衡。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "显存充足时，是否应该无脑把rank调到256？"}, {"role": "assistant", "content": "不应该。rank过大增加参数和过拟合风险，不保证带来更好泛化。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么rank是重要的消融变量？"}, {"role": "assistant", "content": "它直接控制LoRA容量和成本，比较r=8/16/32等可以研究性能与资源之间的trade-off。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "LoRA中的bias='none'是什么意思？"}, {"role": "assistant", "content": "表示不额外训练原模型中的bias参数，只训练指定的LoRA参数。"}]}
+{"topic": "lora", "type": "why", "messages": [{"role": "user", "content": "为什么LoRA常配合较高学习率？"}, {"role": "assistant", "content": "因为只优化少量新增Adapter参数，实践中通常能使用比全参数微调更高的学习率，但仍需验证集调节。"}]}
+{"topic": "lora", "type": "risk", "messages": [{"role": "user", "content": "LoRA学习率过高会怎样？"}, {"role": "assistant", "content": "可能导致Adapter更新过激、训练不稳定或损害原有能力。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "为什么LoRA也需要validation set？"}, {"role": "assistant", "content": "因为仍然可能过拟合，需要验证集选择epoch、学习率和rank等配置。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "为什么Base vs LoRA要使用相同eval prompts？"}, {"role": "assistant", "content": "保持测试题一致才能公平比较模型变化，避免题目差异造成混淆。"}]}
+{"topic": "lora", "type": "correction", "messages": [{"role": "user", "content": "“LoRA只改变推理速度，不改变模型能力。”正确吗？"}, {"role": "assistant", "content": "不正确。LoRA通过学习低秩权重更新改变模型行为和任务能力，主要目标是高效微调。"}]}
+{"topic": "lora", "type": "correction", "messages": [{"role": "user", "content": "“LoRA等于模型剪枝。”正确吗？"}, {"role": "assistant", "content": "不正确。LoRA是低秩适配，不是通过删除权重或通道来压缩网络的剪枝方法。"}]}
+{"topic": "lora", "type": "comparison", "messages": [{"role": "user", "content": "LoRA和量化解决的问题相同吗？"}, {"role": "assistant", "content": "不完全相同。LoRA主要降低微调参数和训练状态开销；量化主要降低模型权重表示精度和存储/显存开销。"}]}
+{"topic": "lora", "type": "definition", "messages": [{"role": "user", "content": "为什么QLoRA常被用于单卡微调大模型？"}, {"role": "assistant", "content": "它同时利用低比特基座权重和LoRA少量可训练参数，显著降低单卡显存需求。"}]}
+{"topic": "lora", "type": "scenario", "messages": [{"role": "user", "content": "模型回答LoRA知识题变好，但其他通用知识下降，应该如何处理？"}, {"role": "assistant", "content": "需要检查数据是否过窄、训练是否过强，并使用独立多领域评测调整数据配比或训练强度。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache缓存的是什么？"}, {"role": "assistant", "content": "缓存每一层Self-Attention中历史token已经计算出的Key和Value张量。"}]}
+{"topic": "kv_cache", "type": "mechanism", "messages": [{"role": "user", "content": "KV Cache为什么能加速自回归解码？"}, {"role": "assistant", "content": "历史token的K/V已经保存，生成新token时只需计算新token的K/V，再与历史缓存一起做Attention，避免重复计算整个前缀。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "没有KV Cache时，每生成一个新token会重复做什么？"}, {"role": "assistant", "content": "会重新处理历史前缀，并重复计算历史token在各层Attention中的Key和Value。"}]}
+{"topic": "kv_cache", "type": "correction", "messages": [{"role": "user", "content": "“KV Cache主要缓存Query。”正确吗？"}, {"role": "assistant", "content": "不正确。主要缓存历史token的Key和Value；当前新token的Query会在当前步重新计算。"}]}
+{"topic": "kv_cache", "type": "why", "messages": [{"role": "user", "content": "为什么不通常缓存历史Query？"}, {"role": "assistant", "content": "后续decode主要需要当前新token的Query去关注历史K/V，历史Query通常不会再次使用。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "prefill是什么？"}, {"role": "assistant", "content": "一次处理完整输入prompt并建立初始KV Cache的阶段。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "decode是什么？"}, {"role": "assistant", "content": "在已有上下文和KV Cache基础上逐token生成新输出的阶段。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "prefill和decode的计算特点有什么不同？"}, {"role": "assistant", "content": "Prefill可并行处理整段prompt；decode通常逐token进行，并高度依赖KV Cache复用历史状态。"}]}
+{"topic": "kv_cache", "type": "why", "messages": [{"role": "user", "content": "KV Cache为什么会占额外显存？"}, {"role": "assistant", "content": "因为需要为每层、每个历史token保存K和V中间张量。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "上下文长度变长时KV Cache会怎样？"}, {"role": "assistant", "content": "历史token增多，需要保存的K/V也增多，因此显存占用通常近似线性增长。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "batch size增大时KV Cache会怎样？"}, {"role": "assistant", "content": "每条序列都需要自己的历史K/V，因此batch增大会增加总KV Cache显存。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "KV Cache和模型权重有什么区别？"}, {"role": "assistant", "content": "模型权重是固定参数；KV Cache是根据当前请求动态生成的中间状态。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "KV Cache和FlashAttention有什么区别？"}, {"role": "assistant", "content": "KV Cache避免decode中重复计算历史K/V；FlashAttention优化Attention本身的内存访问和计算效率。"}]}
+{"topic": "kv_cache", "type": "correction", "messages": [{"role": "user", "content": "“用了FlashAttention就不需要KV Cache。”正确吗？"}, {"role": "assistant", "content": "不正确。两者优化不同瓶颈，可以同时使用。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "为什么长上下文推理容易被KV Cache占满显存？"}, {"role": "assistant", "content": "因为每个历史token都要在每一层保存K/V，序列越长缓存越大。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "GQA为什么能降低KV Cache？"}, {"role": "assistant", "content": "多个Query头共享较少的Key/Value头，因此需要缓存的K/V头数减少。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "MQA为什么更省KV Cache？"}, {"role": "assistant", "content": "多个Query头共享极少数量的Key/Value头，通常比标准MHA需要更少K/V缓存。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "MHA、GQA、MQA在KV Cache上的趋势如何？"}, {"role": "assistant", "content": "通常从MHA到GQA再到MQA，共享程度增加，需要缓存的KV头数量减少，因此显存更省。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache会改变模型参数吗？"}, {"role": "assistant", "content": "不会，它只是保存中间计算结果。"}]}
+{"topic": "kv_cache", "type": "correction", "messages": [{"role": "user", "content": "“KV Cache是一种训练方法。”正确吗？"}, {"role": "assistant", "content": "不正确。它主要是自回归推理阶段的缓存优化机制。"}]}
+{"topic": "kv_cache", "type": "why", "messages": [{"role": "user", "content": "训练时为什么通常不依赖KV Cache？"}, {"role": "assistant", "content": "训练时整段序列已知，可并行计算所有位置；KV Cache主要解决逐token解码时历史前缀重复计算。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "生成100个token时为什么KV Cache收益会逐步积累？"}, {"role": "assistant", "content": "没有缓存时每一步都要重算越来越长的历史前缀；有缓存时历史K/V持续复用，避免的重复计算越来越多。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache是用什么换什么？"}, {"role": "assistant", "content": "用额外显存保存历史K/V，换取更少重复计算和更快解码速度。"}]}
+{"topic": "kv_cache", "type": "correction", "messages": [{"role": "user", "content": "“KV Cache既省显存又加速。”正确吗？"}, {"role": "assistant", "content": "通常不正确。它主要加速解码，但需要额外显存保存缓存。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache的大小与哪些因素有关？"}, {"role": "assistant", "content": "与batch size、上下文长度、层数、KV头数量、head_dim以及数据精度等因素有关。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "为什么FP16/BF16 KV Cache比FP32更省显存？"}, {"role": "assistant", "content": "每个元素使用更少字节，因此同样数量的K/V张量占用更少显存。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "PagedAttention解决什么问题？"}, {"role": "assistant", "content": "通过分页式管理KV Cache，减少显存碎片并更灵活地分配不同请求的缓存，是高吞吐LLM serving中的重要技术。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "PagedAttention和KV Cache是什么关系？"}, {"role": "assistant", "content": "KV Cache是需要保存的历史K/V数据；PagedAttention是一种更高效管理和访问这些KV Cache内存的方法。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "Continuous Batching和KV Cache有什么联系？"}, {"role": "assistant", "content": "连续批处理会动态加入和移除请求，每个请求都需要维护自己的KV Cache，因此高效缓存管理是其关键。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "一个请求结束后，它的KV Cache应该怎样处理？"}, {"role": "assistant", "content": "应及时释放或回收对应缓存空间，以供后续请求复用。"}]}
+{"topic": "kv_cache", "type": "risk", "messages": [{"role": "user", "content": "KV Cache管理不好会导致什么？"}, {"role": "assistant", "content": "可能造成显存碎片、OOM、吞吐下降或可服务并发数降低。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "为什么vLLM很重视KV Cache管理？"}, {"role": "assistant", "content": "高吞吐服务通常同时维护大量请求，KV Cache常成为主要显存消耗之一，高效管理直接影响并发和吞吐。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache量化是什么？"}, {"role": "assistant", "content": "用更低精度存储KV Cache，以减少显存占用，但需要权衡数值误差和实现复杂度。"}]}
+{"topic": "kv_cache", "type": "risk", "messages": [{"role": "user", "content": "KV Cache量化可能有什么代价？"}, {"role": "assistant", "content": "可能引入额外量化误差，影响生成质量，需要根据模型和任务验证。"}]}
+{"topic": "kv_cache", "type": "correction", "messages": [{"role": "user", "content": "“缓存历史K/V意味着完全不需要计算Attention。”正确吗？"}, {"role": "assistant", "content": "不正确。仍需要计算当前Query与历史/当前K的注意力，只是避免重复计算历史K/V。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "decode新token时当前token的K/V需要计算吗？"}, {"role": "assistant", "content": "需要。只是不再重复计算历史token的K/V。"}]}
+{"topic": "kv_cache", "type": "definition", "messages": [{"role": "user", "content": "KV Cache为什么特别适合decoder-only LLM？"}, {"role": "assistant", "content": "这类模型按自回归方式逐token生成，每一步都会重复使用历史前缀，因此缓存历史K/V收益很大。"}]}
+{"topic": "kv_cache", "type": "comparison", "messages": [{"role": "user", "content": "KV Cache减少的是参数计算还是重复中间计算？"}, {"role": "assistant", "content": "主要减少重复中间计算，不减少模型参数本身。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "如果上下文很短、只生成1个token，KV Cache收益会怎样？"}, {"role": "assistant", "content": "收益相对有限，因为需要避免的重复历史计算较少。"}]}
+{"topic": "kv_cache", "type": "scenario", "messages": [{"role": "user", "content": "如果上下文很长且生成很多token，KV Cache收益会怎样？"}, {"role": "assistant", "content": "收益通常更明显，因为历史前缀更长、decode步数更多，避免的重复K/V计算大量累积。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "LLM Agent是什么？"}, {"role": "assistant", "content": "以大语言模型为核心，能够围绕目标进行多步推理、规划、调用工具、与环境交互，并根据反馈继续行动的系统。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "Agent和普通聊天机器人最核心的区别是什么？"}, {"role": "assistant", "content": "普通聊天模型主要生成文本回复；Agent还会执行动作、调用工具、读取Observation并进行多步决策。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "ReAct是什么？"}, {"role": "assistant", "content": "ReAct把Reasoning与Acting结合，让模型在Thought/Reasoning、Action和Observation之间循环完成任务。"}]}
+{"topic": "agent", "type": "mechanism", "messages": [{"role": "user", "content": "ReAct循环通常怎样进行？"}, {"role": "assistant", "content": "先Reasoning分析当前状态，再Action调用工具或执行操作，随后读取Observation，并基于新信息继续下一轮推理。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "用查天气举一个ReAct例子。"}, {"role": "assistant", "content": "Thought判断天气是实时信息；Action调用天气工具；Observation返回天气结果；模型基于结果继续Thought并最终回答。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Tool Use是什么？"}, {"role": "assistant", "content": "模型根据任务需要选择并调用外部工具，例如搜索、计算器、数据库、代码执行器或API，再利用返回结果继续完成任务。"}]}
+{"topic": "agent", "type": "why", "messages": [{"role": "user", "content": "为什么LLM需要Tool Use？"}, {"role": "assistant", "content": "模型参数无法保证实时信息、精确计算或访问私有系统，工具可以扩展模型能力边界。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Observation是什么？"}, {"role": "assistant", "content": "Action执行后由工具或环境返回的真实结果，是Agent下一步推理的重要输入。"}]}
+{"topic": "agent", "type": "why", "messages": [{"role": "user", "content": "为什么Agent不能跳过Observation？"}, {"role": "assistant", "content": "因为Action可能失败或返回新事实，模型必须根据真实结果调整后续计划。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Planning是什么？"}, {"role": "assistant", "content": "把复杂目标拆成子任务或步骤，并决定执行顺序、依赖和后续调整。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "一个旅行规划Agent怎样使用Planning？"}, {"role": "assistant", "content": "先拆分为交通、住宿、景点和预算等子任务，再逐步查询信息、整合结果并根据约束调整计划。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Memory在Agent里有什么作用？"}, {"role": "assistant", "content": "保存并检索跨步骤或跨会话的重要信息，让Agent能复用历史状态、经验或用户偏好。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "短期Memory和长期Memory有什么区别？"}, {"role": "assistant", "content": "短期记忆主要服务当前任务上下文；长期记忆保存跨任务或跨会话的持久信息。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Tool Hallucination是什么？"}, {"role": "assistant", "content": "模型虚构不存在的工具、参数、调用过程或工具执行结果。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "模型没调用搜索工具却说“我刚搜索到……”，属于什么？"}, {"role": "assistant", "content": "属于Tool Hallucination，因为模型虚构了未发生的工具调用或结果。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么Agent需要终止条件？"}, {"role": "assistant", "content": "防止无限循环、重复无效调用工具，并控制成本和延迟。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "Agent连续三次调用同一个工具都失败，应该怎么做？"}, {"role": "assistant", "content": "应根据Observation调整策略、参数或更换工具，并在达到重试上限时停止并说明失败，而不是无限重复。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Task Success Rate是什么？"}, {"role": "assistant", "content": "在一组任务中Agent最终成功完成目标的比例，是端到端评测的重要指标。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Tool Selection Accuracy是什么？"}, {"role": "assistant", "content": "模型在需要工具时是否选择了正确工具的比例。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Tool Argument Accuracy是什么？"}, {"role": "assistant", "content": "工具被选中后，模型生成的参数是否正确、完整和符合schema的比例或质量指标。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么最终任务成功率比单步工具准确率更重要？"}, {"role": "assistant", "content": "因为Agent目标是完成整个任务，即使单步工具选择正确，如果流程最终失败，用户任务仍未完成。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么也要统计平均工具调用次数？"}, {"role": "assistant", "content": "可以衡量Agent完成任务的效率，调用过多可能意味着规划差、成本高或存在循环。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么要统计无效工具调用率？"}, {"role": "assistant", "content": "它能反映模型是否频繁调用不必要或错误工具，影响成本、延迟和可靠性。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "搜索工具返回无关结果后，Agent下一步应该怎样做？"}, {"role": "assistant", "content": "根据Observation重新分析，调整查询词、参数或更换信息源，而不是机械重复相同请求。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "Reasoning和Action有什么区别？"}, {"role": "assistant", "content": "Reasoning是内部分析和决策；Action是真正执行的外部操作，如调用工具或API。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "Action和Observation有什么区别？"}, {"role": "assistant", "content": "Action是Agent发出的操作；Observation是操作执行后环境返回的结果。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Agentic RAG是什么？"}, {"role": "assistant", "content": "让Agent自主决定何时检索、检索什么、如何迭代检索并利用结果回答，而不是固定执行一次RAG流程。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "固定RAG和Agentic RAG有什么区别？"}, {"role": "assistant", "content": "固定RAG按预设流程检索一次或固定次数；Agentic RAG会根据任务和中间结果动态决定是否继续检索或改写查询。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么Agent可能需要代码执行工具？"}, {"role": "assistant", "content": "代码工具可以完成精确计算、数据处理、程序验证和复杂逻辑，而不仅依赖语言模型心算或猜测。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么Agent需要搜索工具？"}, {"role": "assistant", "content": "搜索工具可以获取实时、外部和可验证的信息，弥补模型参数知识过时或不完整的问题。"}]}
+{"topic": "agent", "type": "risk", "messages": [{"role": "user", "content": "Agent Tool Use有哪些主要风险？"}, {"role": "assistant", "content": "包括选错工具、参数错误、工具幻觉、重复调用、未处理失败结果以及执行高风险操作等。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么工具schema很重要？"}, {"role": "assistant", "content": "清晰schema告诉模型工具名、参数类型和约束，减少无效调用和参数格式错误。"}]}
+{"topic": "agent", "type": "correction", "messages": [{"role": "user", "content": "“有了Tool Use，Agent就不需要Reasoning。”正确吗？"}, {"role": "assistant", "content": "不正确。Agent仍需判断何时调用工具、选择哪个工具、如何解释结果以及下一步做什么。"}]}
+{"topic": "agent", "type": "correction", "messages": [{"role": "user", "content": "“ReAct中的Observation是模型自己想出来的。”正确吗？"}, {"role": "assistant", "content": "通常不正确。Observation应来自真实工具或环境返回，而不是模型凭空生成。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么工具结果要重新放回模型上下文？"}, {"role": "assistant", "content": "这样模型才能基于真实Observation继续推理，决定下一步或生成最终答案。"}]}
+{"topic": "agent", "type": "scenario", "messages": [{"role": "user", "content": "Agent调用计算器得到错误码，应该直接给用户结果吗？"}, {"role": "assistant", "content": "不应该。应识别调用失败，分析错误原因，修正参数或换工具，再根据真实成功结果回答。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么Agent训练数据最好包含失败恢复轨迹？"}, {"role": "assistant", "content": "真实环境中工具会失败，包含失败后的修正过程可以教模型如何恢复，而不只是学习理想路径。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "Reflexion类方法想解决什么问题？"}, {"role": "assistant", "content": "让Agent在失败后进行语言化反思，总结错误经验，并在后续尝试中利用这些经验改进决策。"}]}
+{"topic": "agent", "type": "comparison", "messages": [{"role": "user", "content": "ReAct和Reflexion关注点有什么不同？"}, {"role": "assistant", "content": "ReAct强调推理与行动交替；Reflexion更强调任务失败后的反思和经验记忆，用于后续改进。"}]}
+{"topic": "agent", "type": "definition", "messages": [{"role": "user", "content": "为什么Agent评测要关注成本和延迟？"}, {"role": "assistant", "content": "Agent可能多轮调用模型和工具，即使任务成功，如果调用次数过多、延迟太高或成本过大，也不适合实际部署。"}]}

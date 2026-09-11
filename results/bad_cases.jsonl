@@ -1,0 +1,6 @@
+{"id":3,"topic":"LoRA rank","error_type":"factual_error","problem":"模型错误认为rank增大能够降低训练显存。","expected":"rank增大会增加LoRA可训练参数量和显存/计算开销，同时通常提升适配容量。"}
+{"id":4,"topic":"LoRA low-rank decomposition","error_type":"missing_reasoning","problem":"没有解释为什么可以使用两个低秩矩阵。","expected":"模型应解释参数更新ΔW可被低秩近似，并表示为ΔW=BA，其中rank r远小于原矩阵维度。"}
+{"id":5,"topic":"Agent","error_type":"incomplete_answer","problem":"没有突出工具调用、环境交互和多步行动。","expected":"Agent应能够围绕目标进行推理规划、调用工具、与环境交互，并根据Observation继续行动。"}
+{"id":8,"topic":"Pretraining vs SFT","error_type":"incomplete_answer","problem":"只描述数据不同，没有解释训练目标。","expected":"预训练通常通过大规模语料进行next-token prediction；SFT使用instruction-response数据优化指令遵循和特定任务行为。"}
+{"id":9,"topic":"Self-Attention","error_type":"missing_mechanism","problem":"没有说明Q、K、V具体如何参与注意力计算。","expected":"Query与所有Key计算相似度，经过softmax得到attention weights，再对Value加权求和得到上下文表示。"}
+{"id":10,"topic":"KV Cache","error_type":"missing_mechanism","problem":"没有指出autoregressive decoding中的具体重复计算。","expected":"如果没有KV Cache，每生成一个新token都需要重新计算所有历史token的Key和Value；缓存历史KV后只需计算新token的KV。"}

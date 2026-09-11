@@ -1,0 +1,10 @@
+{"messages":[{"role":"user","content":"什么是大语言模型？"},{"role":"assistant","content":"大语言模型是一类基于大量文本数据训练的神经网络模型，能够理解和生成自然语言，并完成问答、总结、推理和代码生成等任务。"}]}
+{"messages":[{"role":"user","content":"什么是Transformer？"},{"role":"assistant","content":"Transformer是一种以注意力机制为核心的神经网络架构，通过Self-Attention建模序列中不同位置之间的关系，是现代大语言模型的基础架构。"}]}
+{"messages":[{"role":"user","content":"什么是SFT？"},{"role":"assistant","content":"SFT即监督微调，是使用人工构造或筛选的输入输出样本继续训练预训练模型，使模型更好地遵循指令并适应特定任务。"}]}
+{"messages":[{"role":"user","content":"什么是LoRA？"},{"role":"assistant","content":"LoRA是一种参数高效微调方法。它冻结原模型的大部分参数，只训练插入到部分线性层中的低秩矩阵，从而显著降低训练显存和参数量。"}]}
+{"messages":[{"role":"user","content":"LoRA中的rank是什么意思？"},{"role":"assistant","content":"rank表示LoRA低秩矩阵的秩，通常记为r。r越大，可训练参数和表达能力通常越强，但显存和计算开销也会增加。"}]}
+{"messages":[{"role":"user","content":"什么是Agent？"},{"role":"assistant","content":"Agent是一类能够根据目标进行推理、规划并与外部环境交互的智能系统。基于大语言模型的Agent通常还能够调用工具、访问记忆并根据观察结果继续决策。"}]}
+{"messages":[{"role":"user","content":"什么是ReAct？"},{"role":"assistant","content":"ReAct是一种将Reasoning和Acting结合起来的Agent范式。模型在推理后选择行动或调用工具，再根据环境返回的Observation继续推理。"}]}
+{"messages":[{"role":"user","content":"什么是Tool Use？"},{"role":"assistant","content":"Tool Use指模型根据任务需要调用搜索引擎、计算器、代码执行器、数据库或API等外部工具，并利用工具返回的结果完成任务。"}]}
+{"messages":[{"role":"user","content":"SFT和预训练有什么区别？"},{"role":"assistant","content":"预训练主要通过大规模无标注语料学习语言和世界知识，而SFT使用高质量指令与回答数据继续训练模型，使其学会按照用户指令完成任务。"}]}
+{"messages":[{"role":"user","content":"为什么LoRA适合大模型微调？"},{"role":"assistant","content":"因为LoRA只训练少量新增参数，可以显著减少显存、计算和模型存储开销，同时通常能够保持较好的微调效果。"}]}

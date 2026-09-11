@@ -1,0 +1,804 @@
+# Eval V2 heuristic score
+
+- Overall concept coverage: **0.470**
+
+## 1. [lora] 在LoRA里，如果把rank r增大，通常对可训练参数量、表达能力和显存开销分别有什么影响？
+
+- Heuristic score: **0.75**
+- Group hits: `[True, True, False, True]`
+
+### Model response
+
+rank r增大通常会增加模型参数量和训练时的显存占用，同时降低训练时的梯度爆炸风险。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 2. [lora] 为什么LoRA能明显减少训练显存，但不能让基座模型权重完全不占显存？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, True, False]`
+
+### Model response
+
+因为LoRA通常只修改少量参数，所以基座权重仍然占显存，但可以显著降低训练时的显存占用。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 3. [lora] LoRA中的ΔW=BA表达了什么含义？为什么这里称为低秩更新？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, False, True]`
+
+### Model response
+
+ΔW表示在训练中对权重的更新只保留少量参数，其余参数保持不变。低秩更新使模型训练更高效，因为只需要训练少量参数即可学习更复杂的特征。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 4. [lora] 如果LoRA的rank设置得过小，模型可能出现什么现象？
+
+- Heuristic score: **0.00**
+- Group hits: `[False, False]`
+
+### Model response
+
+可能无法有效训练LoRA参数，导致训练收敛变慢或训练损失上升。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 5. [lora] 如果LoRA的rank设置得很大，在小数据集上可能有什么风险？
+
+- Heuristic score: **0.33**
+- Group hits: `[True, False, False]`
+
+### Model response
+
+可能使训练变慢、模型更不稳定、训练损失上升、训练epoch数增加。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 6. [lora] LoRA里的target_modules决定了什么？
+
+- Heuristic score: **0.67**
+- Group hits: `[True, True, False]`
+
+### Model response
+
+target_modules决定哪些模块会用LoRA微调，通常会把权重从base模型中提取出来。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 7. [lora] LoRA和QLoRA在显存节省方式上最核心的区别是什么？
+
+- Heuristic score: **1.00**
+- Group hits: `[True, True, True, True]`
+
+### Model response
+
+QLoRA通常会将LoRA的微调参数直接复制到基座模型中，因此需要更少的显存；LoRA则只在LoRA参数上进行轻量化，基座模型仍保留完整参数。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 8. [lora] 为什么LoRA训练结束后通常只需要保存Adapter？
+
+- Heuristic score: **0.67**
+- Group hits: `[True, True, False]`
+
+### Model response
+
+因为Adapter只负责微调特定层，训练时不需要训练Adapter本身，所以通常只保存Adapter权重，再用基座模型继续训练。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 9. [lora] LoRA里的lora_alpha主要控制什么？
+
+- Heuristic score: **0.50**
+- Group hits: `[False, False, True, True]`
+
+### Model response
+
+它主要控制LoRA模块中权重衰减系数，使LoRA对原始参数的更新更少，同时保留更多可训练参数。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 10. [lora] 如何用训练日志证明你做的是参数高效微调而不是全参数微调？
+
+- Heuristic score: **0.00**
+- Group hits: `[False, False, False]`
+
+### Model response
+
+可以记录训练时参数变化量、学习率变化、梯度累积次数、epoch/step/batch大小等指标，证明模型参数不是被大量训练数据重构。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 11. [post_training] SFT和预训练在数据形式与训练目标上分别有什么区别？
+
+- Heuristic score: **0.40**
+- Group hits: `[True, False, False, True, False]`
+
+### Model response
+
+SFT通常只在训练时对模型进行少量示例的反馈，训练目标更偏向“微调模型对特定任务的性能”；而预训练更多在大量无监督数据上训练，使模型具备更广泛的知识和泛化能力。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 12. [post_training] 为什么SFT项目不能只看train loss？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, True, False, False]`
+
+### Model response
+
+因为训练数据可能只覆盖一部分任务或领域，模型可能无法充分学习复杂任务或跨任务泛化。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 13. [post_training] 训练loss下降而eval loss连续上升，最可能说明什么？
+
+- Heuristic score: **0.25**
+- Group hits: `[False, True, False, False]`
+
+### Model response
+
+可能模型对训练目标的解释能力下降，或者训练数据中存在噪声干扰。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 14. [post_training] 为什么不能把测试集原题加入训练集后再继续用同一测试集汇报效果？
+
+- Heuristic score: **0.00**
+- Group hits: `[False, False, False, False]`
+
+### Model response
+
+因为训练集和测试集本来就是独立的，测试集本身已经包含了未见过的数据。加入训练集后，测试集可能已经包含更多训练数据，结果会更准确，但训练集和测试集的划分会更复杂。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 15. [post_training] assistant_only_loss=True通常意味着什么？
+
+- Heuristic score: **0.25**
+- Group hits: `[False, True, False, False]`
+
+### Model response
+
+它表示模型只使用自己的输出来计算损失，不使用外部数据或外部训练结果。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 16. [post_training] SFT和DPO最核心的监督信号有什么区别？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, True, False]`
+
+### Model response
+
+SFT主要通过人类反馈直接训练模型对目标任务的输出进行微调；DPO则通过对比不同版本的模型对同一任务的输出，选择最优版本。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 17. [post_training] 为什么smoke test通过后，正式训练最好重新从Base Model开始？
+
+- Heuristic score: **0.50**
+- Group hits: `[False, True, True, False]`
+
+### Model response
+
+因为Base Model可能已经过拟合，重新训练可以更准确地收敛到最佳解。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 18. [post_training] train、validation、test三份数据分别承担什么角色？
+
+- Heuristic score: **1.00**
+- Group hits: `[True, True, True, True, True]`
+
+### Model response
+
+训练集用于训练模型；验证集用于调整超参数和选择模型；测试集用于最终评估模型性能。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 19. [post_training] 为什么SFT数据里同一知识点最好设计多种问法？
+
+- Heuristic score: **0.25**
+- Group hits: `[True, False, False, False]`
+
+### Model response
+
+同一知识点的问法越多样，越容易让模型在不同语境下训练出更丰富的语义和表达方式。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 20. [post_training] 一个完整的SFT bad-case飞轮应该怎样循环？
+
+- Heuristic score: **0.20**
+- Group hits: `[False, False, False, False, True]`
+
+### Model response
+
+通常会先让模型在训练集上反复训练，直到它开始在测试集上表现变差；然后让模型在验证集上继续训练，直到它开始在训练集上表现变好；最后让模型在测试集上进行最终评估。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 21. [attention] 请完整描述Scaled Dot-Product Attention从Q、K、V到输出的计算流程。
+
+- Heuristic score: **0.60**
+- Group hits: `[True, False, False, True, True]`
+
+### Model response
+
+Scaled Dot-Product首先计算Q和K的点积，得到QK^T；然后对每个Q中的元素乘以对应的K中的元素，得到QK^T的平方和；接着对每个Q中的元素取平均，得到QK^T的平均值；最后将这些平均值与V进行加权求和，得到最终的注意力权重。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 22. [attention] 在Self-Attention中，Query、Key和Value各自承担什么角色？
+
+- Heuristic score: **0.60**
+- Group hits: `[True, True, True, False, False]`
+
+### Model response
+
+Query用于提取当前token的特征；Key用于将Query与上下文中的token对应；Value是当前token的输出。最终Attention的结果会把Query和Key映射到Value上，得到对当前token的注意力权重。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 23. [attention] 为什么Attention分数要除以sqrt(d_k)？
+
+- Heuristic score: **0.00**
+- Group hits: `[False, False, False, False]`
+
+### Model response
+
+因为Attention中每个位置的权重是基于当前token和历史token的相似度，而相似度通常比token数量大得多，所以需要除以token数量以使权重更合理。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 24. [attention] 一个token如何通过Self-Attention从整句话其他位置获取上下文信息？
+
+- Heuristic score: **0.20**
+- Group hits: `[False, True, False, False, False]`
+
+### Model response
+
+通常需要将上下文拆分成多个token序列，然后对每个token分别计算与当前token的自注意力。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 25. [attention] Multi-Head Attention为什么不是只用一个Attention头？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, True, False, False]`
+
+### Model response
+
+因为不同头可以学习不同任务或不同视角的表示。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 26. [attention] Causal Mask在自回归语言模型中具体阻止了什么？
+
+- Heuristic score: **0.25**
+- Group hits: `[True, False, False, False]`
+
+### Model response
+
+它防止模型在生成下一个token时重复使用已经生成的token。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 27. [attention] Padding Mask和Causal Mask解决的问题有什么不同？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, True, False]`
+
+### Model response
+
+Padding Mask用于在序列中为位置添加“0”或“1”，让模型知道哪些位置可以被填充；Causal Mask则用于防止模型在计算注意力时重复计算当前和历史位置。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 28. [attention] Self-Attention与Cross-Attention在Q、K、V来源上有什么区别？
+
+- Heuristic score: **0.67**
+- Group hits: `[True, True, True, False, True, False]`
+
+### Model response
+
+Self-Attention通常只在当前序列中提取当前token的自注意力；Cross-Attention则需要两个序列，通常用于将不同时间步或不同序列的token进行注意力连接。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 29. [attention] 为什么标准Self-Attention在序列长度n上常被说成O(n²)？
+
+- Heuristic score: **0.25**
+- Group hits: `[True, False, False, False]`
+
+### Model response
+
+因为每个位置需要计算与所有前缀的注意力，所以总计算量是O(n²)。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 30. [attention] RoPE是怎样把位置信息作用到Attention里的？
+
+- Heuristic score: **0.40**
+- Group hits: `[True, False, False, False, True]`
+
+### Model response
+
+RoPE把位置信息直接作用在Attention的权重上，使得每个位置可以独立地学习不同位置的注意力权重。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 31. [kv_cache] 自回归解码时，KV Cache到底缓存哪些张量？
+
+- Heuristic score: **0.75**
+- Group hits: `[True, True, True, False]`
+
+### Model response
+
+通常会缓存当前token的K/V，以及历史token的K/V。这些缓存可以复用历史token的参数，避免重复计算。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 32. [kv_cache] 如果关闭KV Cache，每生成一个新token会重复计算什么？
+
+- Heuristic score: **0.75**
+- Group hits: `[True, False, True, True]`
+
+### Model response
+
+每生成一个新token，会重新计算当前序列的K/V，因此缓存不再保存历史K/V，导致每步token都重新计算。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 33. [kv_cache] 为什么KV Cache能加速decode，却会额外占用显存？
+
+- Heuristic score: **0.60**
+- Group hits: `[True, True, False, True, False]`
+
+### Model response
+
+因为每个token需要保存当前K/V状态，所以显存占用会增加，但通常比全卷积更快。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 34. [kv_cache] LLM推理里的prefill和decode分别在做什么？
+
+- Heuristic score: **0.40**
+- Group hits: `[True, False, False, True, False]`
+
+### Model response
+
+prefill用于把模型前缀加载到当前token序列中，decode则根据当前token序列继续推理。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 35. [kv_cache] 为什么上下文越长，KV Cache通常越占显存？
+
+- Heuristic score: **0.50**
+- Group hits: `[False, True, True, False]`
+
+### Model response
+
+因为上下文越多，需要保存的K/V越多，显存占用越高。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 36. [kv_cache] 为什么batch size增大会提高KV Cache显存占用？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, True, False]`
+
+### Model response
+
+因为每个batch中保存的K/V越多，显存占用越高。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 37. [kv_cache] KV Cache和FlashAttention分别主要优化什么问题？
+
+- Heuristic score: **0.80**
+- Group hits: `[True, True, True, True, False]`
+
+### Model response
+
+KV Cache主要优化序列长度较长时的重复计算；FlashAttention主要优化序列长度较长时的计算开销。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 38. [kv_cache] 为什么KV Cache通常不需要缓存历史Query？
+
+- Heuristic score: **1.00**
+- Group hits: `[True, True, True, True]`
+
+### Model response
+
+因为历史Query和历史Key/Value通常不相关，历史KVCache反而会浪费大量计算资源。当前主流模型通常不使用历史KV Cache。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 39. [kv_cache] GQA/MQA为什么能减小KV Cache？
+
+- Heuristic score: **0.60**
+- Group hits: `[True, False, True, False, True]`
+
+### Model response
+
+因为GQA和MQA在训练时不需要显存存储历史K/V，只在推理时才需要复用这些缓存。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 40. [kv_cache] 正确实现KV Cache会不会改变模型理论上的生成结果？为什么？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, False, True, False]`
+
+### Model response
+
+不会。KV Cache只是临时存储历史K/V，不影响最终模型对新token的推理。模型会根据历史上下文重新计算K/V，因此结果不会因为缓存而改变。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 41. [agent] 请用搜索实时天气的例子描述一次完整ReAct循环。
+
+- Heuristic score: **0.20**
+- Group hits: `[False, False, False, True, False]`
+
+### Model response
+
+假设我搜索到今天北京的天气是多云，然后根据天气预测生成新的ReAct目标，比如“北京未来1天最高温度将升至35℃”，接着用这个新目标继续搜索，最终可能得到新的实验数据或结论。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 42. [agent] LLM Agent相比普通聊天模型，多出来的核心能力通常有哪些？
+
+- Heuristic score: **0.40**
+- Group hits: `[True, True, False, False, False]`
+
+### Model response
+
+多出的核心能力通常包括：对上下文的深度理解、对不同场景的适配、对复杂任务的推理、对多目标决策的综合分析、对不同参数或数据的训练和调优、以及对不同工具或系统的调用能力。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 43. [agent] 如果模型声称“我已经调用天气API并得到25℃”，但系统实际上没有执行任何工具，这属于什么问题？
+
+- Heuristic score: **0.25**
+- Group hits: `[False, False, True, False]`
+
+### Model response
+
+这属于工具调用失败或工具未被正确调用。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 44. [agent] Agent调用工具后为什么必须读取Observation再决定下一步？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, True, False, False]`
+
+### Model response
+
+因为工具返回的Observation可能包含错误信息、状态或新的参数，只有读取后才能判断下一步是否需要继续执行或终止流程。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 45. [agent] Agent中的Planning解决的是什么问题？
+
+- Heuristic score: **0.25**
+- Group hits: `[True, False, False, False]`
+
+### Model response
+
+Planning通常用于确定执行路径、资源分配、目标优先级或状态转移。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 46. [agent] Agent中的Memory和当前上下文窗口有什么区别？
+
+- Heuristic score: **0.75**
+- Group hits: `[True, True, False, True]`
+
+### Model response
+
+Memory保存历史对话，当前上下文窗口是当前正在处理的对话历史。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 47. [agent] 评估Tool Use时，除了最终任务成功率，还可以看哪些指标？
+
+- Heuristic score: **0.50**
+- Group hits: `[False, False, True, True]`
+
+### Model response
+
+可以看工具调用次数、工具调用成功率、工具调用时间、工具调用错误率、工具返回结果的正确性、工具是否成功完成任务、是否返回了预期结果、是否需要人工修正、是否需要进一步澄清、是否需要重新调用工具、是否需要用户重新提交请求等。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 48. [agent] 为什么Agent系统通常要设置最大步数或终止条件？
+
+- Heuristic score: **0.50**
+- Group hits: `[True, True, False, False]`
+
+### Model response
+
+因为Agent在执行过程中可能因为超时、资源耗尽或任务失败而终止，设置最大步数可以避免无限循环；同时也能让系统在合理范围内完成任务。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 49. [agent] Reasoning、Action和Observation三者在Agent里分别是什么？
+
+- Heuristic score: **0.75**
+- Group hits: `[True, True, True, False]`
+
+### Model response
+
+Reasoning是Agent根据已有知识和上下文进行决策或推理；Action是执行具体操作；Observation是Agent执行后获得的结果或状态。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+
+## 50. [agent] 如果一个搜索工具连续两次返回无关结果，Agent应该怎样处理？
+
+- Heuristic score: **0.25**
+- Group hits: `[False, False, True, False]`
+
+### Model response
+
+可以先复核搜索关键词是否正确，再尝试调整搜索范围或参数。
+
+### Human review
+
+- Correctness (0/1/2): TODO
+- Completeness (0/1/2): TODO
+- Hallucination (0/1): TODO
+- Notes: TODO
+

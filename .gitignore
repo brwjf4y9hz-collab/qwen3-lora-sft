@@ -18,3 +18,60 @@ __pycache__/
 
 # Hugging Face cache
 .cache/
+
+# Model weights and checkpoints, wherever generated
+models/
+weights/
+checkpoints/
+checkpoint-*/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*.ggml
+*.onnx
+*.h5
+*.hdf5
+
+# Runtime environments, caches, and training logs
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.huggingface/
+hf_cache/
+wandb/
+runs/
+logs/
+*.log
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Credentials and machine-local settings
+.env.*
+.envrc
+.ssh/
+.aws/
+credentials
+credentials.*
+secrets/
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.netrc
+.git-credentials
+
+# Local editor and OS files
+.DS_Store
+*.swp
+*.swo

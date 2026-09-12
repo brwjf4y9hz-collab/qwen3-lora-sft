@@ -667,3 +667,14 @@ Final Model Selection
 The core lesson is:
 
 > Post-training is not simply “lower the loss”. The real work is designing data, maintaining clean evaluation, analyzing failure patterns, and determining whether training improvements actually transfer to downstream behavior.
+
+
+---
+
+# 16. Repository Contents
+
+本仓库保存训练与推理代码、依赖配置、`data/` 下的数据集，以及 `results/` 下的小体积评测记录和实验报告，便于复核实验结论。
+
+模型权重、LoRA adapter、checkpoint、`outputs/`、运行缓存、训练日志和凭据不纳入版本控制。README 中的 `outputs/...` 路径指服务器上的本地训练产物；克隆仓库后需要先准备基础模型并运行相应训练脚本，才能使用这些路径。
+
+服务器上的模型和训练产物保留在原位置。SSH 密码、API token 等凭据不得写入代码、数据集或文档。

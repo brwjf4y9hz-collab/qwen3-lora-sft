@@ -13,6 +13,17 @@ ADAPTER_PATHS = {
     "v0": "outputs/qwen3-0.6b-lora",
     "v1": "outputs/qwen3-0.6b-lora-v1",
     "v2": "outputs/qwen3-0.6b-lora-v2",
+    "dpo_v0": "outputs/qwen3-0.6b-dpo-v0",
+    "dpo_v1": "outputs/qwen3-0.6b-dpo-v1-hard",
+}
+
+OUTPUT_FILES = {
+    "base": "results/eval_v2_base.jsonl",
+    "v0": "results/eval_v2_v0.jsonl",
+    "v1": "results/eval_v2_v1.jsonl",
+    "v2": "results/eval_v2_v2.jsonl",
+    "dpo_v0": "results/eval_v2_dpo_v0.jsonl",
+    "dpo_v1": "results/eval_v2_dpo_v1.jsonl",
 }
 
 def load_model(mode):
@@ -35,7 +46,7 @@ def load_model(mode):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["base", "v0", "v1", "v2"], required=True)
+    parser.add_argument("--mode", choices=["base", "v0", "v1", "v2","dpo_v0", "dpo_v1"], required=True)
     parser.add_argument("--max-new-tokens", type=int, default=256)
     args = parser.parse_args()
 
@@ -44,7 +55,8 @@ def main():
         samples = [json.loads(line) for line in f]
 
     Path("results").mkdir(exist_ok=True)
-    output_file = f"results/eval_v2_{args.mode}.jsonl"
+
+    output_file = OUTPUT_FILES[args.mode]
 
     with open(output_file, "w", encoding="utf-8") as out:
         for n, sample in enumerate(samples, 1):
